@@ -12,15 +12,16 @@
 	}
 
 	RemoteDataStore.prototype.add = function(key, val) {
+		this.remove(key);
 		$.post(this.serverUrl, val, function(serverResponse) {
 			console.log(serverResponse);
 		});
 	};
 
 	RemoteDataStore.prototype.get = function(key, cb) {
-		$.get(this.serverUrl + '/' + key, function(serverResponse) {
+		$.get(this.serverUrl + '?emailAddress=' + key, function(serverResponse) {
 			console.log(serverResponse);
-			cb(serverResponse);
+			cb(serverResponse[0]);
 		});
 	};
 
@@ -32,9 +33,11 @@
 	};
 
 	RemoteDataStore.prototype.remove = function(key) {
-		$.ajax(this.serverUrl + '/' + key, {
-			type: 'DELETE',
-		});
+		this.get(key, (function(response) {
+			$.ajax(this.serverUrl + '/' + response.id, {
+				type: 'DELETE',
+			});
+		}).bind(this));
 	};
 
 	App.RemoteDataStore = RemoteDataStore;
